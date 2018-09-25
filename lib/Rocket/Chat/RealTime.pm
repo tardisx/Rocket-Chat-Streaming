@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-package Rocket::Chat::Streaming;
+package Rocket::Chat::RealTime;
 
 use Mojo::Base       qw/-base/;
 use Mojo::IOLoop;
@@ -8,14 +8,15 @@ use Mojo::UserAgent;
 use Digest;
 use Carp             qw/confess/;
 
-# ABSTRACT: An interface to the RocketChat streaming API
+# ABSTRACT: An interface to the RocketChat real-time API
+
 
 =head1 SYNOPSIS
 
   my $api_url = 'wss://chat.domain.com/websocket';
 
   # create object
-  my $rc = Rocket::Chat::Streaming->new(url => $api_url);
+  my $rc = Rocket::Chat::RealTime->new(url => $api_url);
 
   # register callbacks
   $rc->on(connect => sub { $rc->login($username, $password); });

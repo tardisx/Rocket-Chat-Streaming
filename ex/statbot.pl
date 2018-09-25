@@ -11,19 +11,19 @@ statbot.pl
 
 =head1 DESCRIPTION
 
-A simple example bot for Rocket::Chat::Streaming to demonstrate collecting
+A simple example bot for Rocket::Chat::RealTime to demonstrate collecting
 statistics of conversations, on a per user and per room basis.
 
 =cut
 
-use Rocket::Chat::Streaming;
+use Rocket::Chat::RealTime;
 
 my $api  = $ENV{RCS_BOT_API}  || die "env var RCS_BOT_API not set\n";
 my $user = $ENV{RCS_BOT_USER} || die "env var RCS_BOT_USER not set\n";
 my $pass = $ENV{RCS_BOT_PASS} || die "env var RCS_BOT_PASS not set\n";
 
 # create object
-my $rc = Rocket::Chat::Streaming->new(url => $api);
+my $rc = Rocket::Chat::RealTime->new(url => $api);
 
 # register callbacks
 $rc->on(connect => sub { $rc->login($user, $pass); });
