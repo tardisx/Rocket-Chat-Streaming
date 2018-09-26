@@ -26,9 +26,11 @@ my $pass = $ENV{RCS_BOT_PASS} || die "env var RCS_BOT_PASS not set\n";
 my $rc = Rocket::Chat::RealTime->new(url => $api);
 
 # register callbacks
-$rc->on(connect => sub { $rc->login($user, $pass); });
-$rc->on(error => sub { my ($err) = @_;  warn "Error occurred - exiting:\n".Dumper($err); exit; });
+$rc->on(connect   => sub { $rc->login($user, $pass); });
+$rc->on(error     => sub { my ($err) = @_;  warn "Error occurred - exiting:\n".Dumper($err); exit; });
 $rc->on(logged_in => sub { say "Login successful!"; $rc->get_rooms() } );
+$rc->on(rooms_updated => sub { say "Got rooms: " . join(',', map { $_->id .'/'.$_->type  }  @{ $rc->rooms }); });
+
 
 # for debugging purposes
 # $rc->on(all_msg => sub { warn Dumper(shift); });

@@ -8,8 +8,9 @@ use Mojo::UserAgent;
 use Digest;
 use Carp             qw/confess/;
 
-# ABSTRACT: An interface to the RocketChat real-time API
+use Rocket::Chat::RealTime::Room;
 
+# ABSTRACT: An interface to the RocketChat real-time API
 
 =head1 SYNOPSIS
 
@@ -27,6 +28,10 @@ use Carp             qw/confess/;
   # run event loop, forever
   $rc->start;
 
+=head2 SEE ALSO
+
+https://rocket.chat/docs/developer-guides/realtime-api/#realtime-api
+
 =cut
 
 has 'url';
@@ -40,6 +45,8 @@ has 'is_connected' => 0;
 has 'is_logged_in' => 0;
 has 'session';
 has 'token';
+
+has 'rooms';
 
 my $method_id = 0;
 
@@ -182,6 +189,7 @@ sub login {
 
 =method get_rooms
 
+Ask the server to update our list of rooms that we belong to.
 
 =cut
 
@@ -201,7 +209,32 @@ sub get_rooms {
   # register a handler for the response
   $self->_response_handler->{$method_id} =
     sub {
-      # TODO create room objects and populate
+      my $result = shift;
+
+      # this is quite wrong, we need to deal with rooms coming and going
+      # and not recreate all the time I think - it's not yet clear to me what
+      # the flow looks like in that case
+      $self->rooms([]);
+
+      foreach my $r (@$result) {
+        # TODO we should probably just pass the data to the Room class
+        # and let it deal with it - though we have to deal with different
+        # types of "rooms".
+        # https://rocket.chat/docs/developer-guides/realtime-api/the-room-object/
+        my $room = Rocket::Chat::RealTime::Room->new(
+          id   => $r->{_id},
+          name => $r->{name},
+          ro   => $r->{ro},
+          type => $r->{t},
+        );
+        push @{ $self->rooms }, $room;
+      }
+
+      # call our 'rooms updated' call backs
+      foreach (@{ $self->_events->{rooms_updated} || [] }) {
+        $_->();
+      }
+
     };
 
   return;
